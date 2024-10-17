@@ -14,16 +14,15 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import MuseScore 3.0
 import QtQuick 2.2
-import QtQuick.Controls 2.2
-import QtQuick.Controls.Styles 1.3
-import QtQuick.Layouts 1.1
-import QtQuick.Dialogs 1.1
+import QtQuick.Controls 2.15
+import QtQuick.Layouts 1.15
+
+import MuseScore 3.0
 import FileIO 3.0
 
 MuseScore {
-    version: "1.1.0"
+    version: "1.2.0"
     title: "EDO Tuning"
     description: "Apply various temperaments and tunings"
     pluginType: "dialog"
@@ -1431,8 +1430,7 @@ MuseScore {
                                 id: saveButton
                                 text: qsTranslate("PrefsDialogBase", "Save")
                                 onClicked: {
-                                    // declaring this directly in the saveDialog's properties doesn't seem to work
-                                    saveDialog.folder = Qt.resolvedUrl("file://" + filePath)
+                                    saveDialog.folder = filePath
                                     saveDialog.visible = true
                                 }
                             }
@@ -1440,7 +1438,7 @@ MuseScore {
                                 id: loadButton
                                 text: qsTranslate("PrefsDialogBase", "Load")
                                 onClicked: {
-                                    loadDialog.folder = Qt.resolvedUrl("file://" + filePath)
+                                    loadDialog.folder = filePath
                                     loadDialog.visible = true
                                 }
                             }
@@ -1511,7 +1509,7 @@ MuseScore {
         title: "Quit?"
         text: "Do you want to quit the plugin?"
         detailedText: "It looks like you have made customisations to this tuning, you could save them to a file before quitting if you like."
-        standardButtons: StandardButton.Ok | StandardButton.Cancel
+        standardButtons: [StandardButton.Ok, StandardButton.Cancel]
         onAccepted: {
             quit()
         }
@@ -1531,7 +1529,7 @@ MuseScore {
     }
 
     function getFile(dialog) {
-        var source = dialog.fileUrl.toString().substring(7) // strip the 'file://' prefix
+        var source = dialog.filePath
         return source
     }
 
@@ -1589,8 +1587,9 @@ MuseScore {
 
     FileDialog {
         id: loadDialog
+        type: FileDialog.Load
         title: "Please choose a file"
-        sidebarVisible: true
+        //sidebarVisible: true
         onAccepted: {
             loadFile.source = getFile(loadDialog)
             var data = JSON.parse(loadFile.read())
@@ -1605,9 +1604,10 @@ MuseScore {
 
     FileDialog {
         id: saveDialog
+        type: FileDialog.Save
         title: "Please name a file"
-        sidebarVisible: true
-        selectExisting: false
+        //sidebarVisible: true
+        //selectExisting: false
         onAccepted: {
             saveFile.source = getFile(saveDialog)
             saveFile.write(formatCurrentValues())
